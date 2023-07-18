@@ -203,6 +203,7 @@ layout the figure with the final coordinates from the sociogram stage.
                             -as.numeric(oneEgoNet%v%"Cords_y")),
                             nrow=length(unique(oneEgoNet%v%"name")),
                             ncol=2))
+![One egocentric network](Images/NC_DataAnalysis0.png)  
 
 As you can see, this only shows a single egocentric network. However,
 the egor package has several functions that facilitate comparison of
@@ -215,6 +216,8 @@ true/false).
     plot(egorNetworkCanvas, venn_var = "Drugs",
          pie_var = "ContactFreq",vertex_label_var="nodeID",
          type = "egogram")
+
+![Multiple egocentric network](Images/NC_DataAnalysis1.png)  
 
 ## Data analysis
 
@@ -266,6 +269,7 @@ histogram of alter degrees across all ego networks.
     ggplot(histData, aes(x=degree)) +
         geom_histogram(color="black", fill="white",bins=5) +
         theme_classic()
+![Alter degree histogram](Images/NC_DataAnalysis2.png)  
 
 Finally, we often want to examine how an ego attribute may be associated
 with ego network characteristics. In this example we look at the
@@ -278,3 +282,5 @@ using and the density of their ego network.
         geom_point(size=5) +
         geom_text(label=egorNetworkCanvas$ego$networkCanvasCaseID, aes(vjust=c(-1.5))) +
         ylim(0,1.05) + theme_classic()
+
+![Density and drugs figure](Images/NC_DataAnalysis3.png)  
