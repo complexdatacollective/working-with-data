@@ -1,0 +1,8 @@
+"from","to","networkCanvasEgoUUID","networkCanvasUUID","networkCanvasSourceUUID","networkCanvasTargetUUID","AlterSexTie"
+2,4,"2944b829-ef9d-446e-b592-6fbf57657743","f4df014b-4731-4f99-aea5-5995d110abd1","fb81fdba-2ba0-4915-873d-0d73ff0d430f","e9b377f9-e0c9-491f-b58b-ab50cbefee96","false"
+6,5,"2944b829-ef9d-446e-b592-6fbf57657743","f42850f0-7cff-4d6a-8c4e-bf6dce7b4c14","c43bc504-e991-44b4-85bf-733729cf91e3","cebc1c7a-42c4-445a-abe7-554f174f6872","true"
+10,17,"2944b829-ef9d-446e-b592-6fbf57657743","7673de25-1b34-48ba-ae7b-27711e9a934d","81b9058e-2aef-4997-a56f-d17eedb6834e","d7f4ce8d-78a6-43fe-9ad5-7a25617d40ac","false"
+20,6,"2944b829-ef9d-446e-b592-6fbf57657743","7ffdd608-621f-4838-a422-f4e84a3808ad","b1e950c4-b60e-4d5e-9546-4b8bb5b3c4db","c43bc504-e991-44b4-85bf-733729cf91e3","false"
+19,1,"2944b829-ef9d-446e-b592-6fbf57657743","01d959f0-fdd1-45a2-b3e0-7d81325b6efd","3619e66a-c1f3-42f1-a604-46cda589b420","a43625fa-e0b1-4302-8f9e-fd9b98c99e7f","true"
+12,10,"2944b829-ef9d-446e-b592-6fbf57657743","b2b8bbc8-f745-4f57-b7ea-5289af60d904","54086684-e450-4e10-879b-8aaaf76e460e","81b9058e-2aef-4997-a56f-d17eedb6834e","false"
+8,20,"2944b829-ef9d-446e-b592-6fbf57657743","44651827-c5ec-4786-b629-ec250bf1bcec","4bd811cd-f30a-4918-9196-56ac8c9ea4a8","b1e950c4-b60e-4d5e-9546-4b8bb5b3c4db","true"
