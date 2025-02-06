@@ -1,5 +1,5 @@
 ---
-title: "Working with Network Canvas Data in R"
+title: "Working with Network Canvas Data in R using ideanet"
 author: "Tom Wolff"
 date: "2024-12-16"
 output: html_document
@@ -8,14 +8,13 @@ output: html_document
 # Head Summary
 
 Summary:
-This tutorial will show you how to work with Network Canvas data in the R statistics environment.
+This tutorial will show you how to work with Network Canvas data in the R statistics environment, using the [`ideanet`](https://cran.r-project.org/web/packages/ideanet/index.html) package.
 
 Prerequisites:
 In order to follow along with this tutorial you should: (1) Have an understanding of the R environment. (2) Have a working installation of R studio, or similar, in order to enter commands.
 
 Duration:
 30 minutes
-
 
 
 ## Introduction
@@ -26,13 +25,11 @@ If you are not using your own protocol, you can download the CSV files used in t
 
 Should you require more resources, or if you are just generally curious, a complete GitHub repository for this tutorial can be found [here](https://github.com/complexdatacollective/working-with-data).
 
-**I FEEL LIKE WE SHOULD BRIEFLY EXPLAIN THE CONTEXT OF THESE DATA TO READERS. IT WILL HELP THEM UNDERSTAND THE NAMES OF CERTAIN COLUMNS, ESPECIALLY IN THE ANALYSIS SECTION**
-
 ## Locating Your Data
 
 Assuming you have either downloaded our example data or successfully exported your own data, you should now have a folder of Network Canvas CSV files somewhere on your computer. The contents of this folder should look something like the screenshot below (note that the start of each file name will likely be different if you are working with your own data):
 
-![*A Directory of Exported Network Canvas CSVs*](nc_directory_list.png){width=90%}
+![*A Directory of Exported Network Canvas CSVs*](nc_directory_list.png)
 
 
 Once you have your data, the first thing you will want to do in R is to create an object that stores the path to this folder as a character value.
@@ -40,7 +37,7 @@ Once you have your data, the first thing you will want to do in R is to create a
 ```{r directory_path}
 # Store path to folder with Network Canvas data
 ### Note that this path will almost certainly be different on your own computer
-path_to_data <- "~/Desktop/netwrite_debug/nc_site/networkCanvasExport"
+path_to_data <- paste0(getwd(),'/networkCanvasExport/')
 ```
 
 If you are going to use your Network Canvas protocol file, as we recommended earlier, you will also want to store the path to the protocol file in another object.
@@ -48,7 +45,7 @@ If you are going to use your Network Canvas protocol file, as we recommended ear
 ```{r protocol_path}
 # Store path to Network Canvas protocol file
 ### Note that this path will almost certainly be different on your own computer
-path_to_protocol <- "~/Desktop/netwrite_debug/nc_site/IJE_RADAR_Protocol.netcanvas"
+path_to_protocol <- paste0(getwd(),'/IJE_RADAR_Protocol.netcanvas')
 ```
 
 
