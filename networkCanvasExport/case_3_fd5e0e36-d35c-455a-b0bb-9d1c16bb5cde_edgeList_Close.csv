@@ -1,0 +1,4 @@
+edgeID,from,to,networkCanvasEgoUUID,networkCanvasUUID,networkCanvasSourceUUID,networkCanvasTargetUUID,AlterSexTie
+1,2,1,d3e7a9b9-845b-4611-9253-a6a31dc265a7,1c3d9105-4b12-4efb-8e95-56429d1d0488,f3e39ba4-37ac-4f0d-9cc8-c46715cf98b1,ad0e2340-3e48-479b-a7dd-baf94a30527d,
+2,3,4,d3e7a9b9-845b-4611-9253-a6a31dc265a7,da5dd455-237f-440b-bb3e-dc177cbce338,34dac1a5-59e5-4841-a8a7-4e0c6ba98cf2,1636454b-9e21-4d86-a853-df0e753d38a9,
+3,1,7,d3e7a9b9-845b-4611-9253-a6a31dc265a7,28a87013-2e22-4ce8-abde-333cfdda2b0d,ad0e2340-3e48-479b-a7dd-baf94a30527d,e7e2c562-3cee-457c-9807-02f2e24eeabf,
