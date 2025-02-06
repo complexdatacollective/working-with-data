@@ -1,0 +1,2 @@
+networkCanvasEgoUUID,networkCanvasCaseID,networkCanvasSessionID,networkCanvasProtocolName,sessionStart,sessionFinish,sessionExported,DrugsUsed_1,DrugsUsed_2,DrugsUsed_3,DrugsUsed_4,DrugsUsed_5,DrugsUsed_6,DrugsUsed_7,DrugsUsed_8,DrugsUsed_9,MarijuanaUsed,CocaineUsed,HeroinUsed,PainkillersUsed,PoppersUsed
+e8d51e04-0054-4bd5-80d5-46469622f8e2,case_6,58cc5211-cafa-4746-8996-6857d4726b74,IJE_RADAR_Protocol (1),2024-12-17T16:56:22.809Z,2024-12-17T17:21:34.148Z,2024-12-17T20:12:54.967Z,false,false,false,false,false,false,false,false,false,true,false,false,true,true

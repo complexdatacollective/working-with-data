@@ -1,0 +1,285 @@
+---
+title: "Working with Network Canvas Data in R"
+author: "Tom Wolff"
+date: "2024-12-16"
+output: html_document
+---
+
+# Head Summary
+
+Summary:
+This tutorial will show you how to work with Network Canvas data in the R statistics environment.
+
+Prerequisites:
+In order to follow along with this tutorial you should: (1) Have an understanding of the R environment. (2) Have a working installation of R studio, or similar, in order to enter commands.
+
+Duration:
+30 minutes
+
+
+
+## Introduction
+
+This tutorial provides an example of an import and analysis workflow for [Network Canvas](https://networkcanvas.com/) data using the R programming language. This example uses simulated data from the following [Network Canvas protocol file](https://github.com/complexdatacollective/working-with-data/raw/main/IJE_RADAR_Protocol.netcanvas) which can be opened in the Network Canvas Interviewer or Architect apps. If you are following this example with your own protocol, you will first want to export data collected using your protocol. We do not cover the export process here, but we encouage you to consult [this article](https://documentation.networkcanvas.com/en/desktop/tutorials/protocol-and-data-workflows) should you need to review it. Note that you will want to export your data using the CSV option and not the GraphML option for this workflow.
+
+If you are not using your own protocol, you can download the CSV files used in this tutorial  [here](https://github.com/complexdatacollective/working-with-data/raw/main/networkCanvasExport.zip). Downloading the protocol file linked above is optional, but it is highly encouraged that you do so as well. The workflow in this tutorial uses tools that can read in Network Canvas protocol files and use information stored in these files to process data more effectively.
+
+Should you require more resources, or if you are just generally curious, a complete GitHub repository for this tutorial can be found [here](https://github.com/complexdatacollective/working-with-data).
+
+**I FEEL LIKE WE SHOULD BRIEFLY EXPLAIN THE CONTEXT OF THESE DATA TO READERS. IT WILL HELP THEM UNDERSTAND THE NAMES OF CERTAIN COLUMNS, ESPECIALLY IN THE ANALYSIS SECTION**
+
+## Locating Your Data
+
+Assuming you have either downloaded our example data or successfully exported your own data, you should now have a folder of Network Canvas CSV files somewhere on your computer. The contents of this folder should look something like the screenshot below (note that the start of each file name will likely be different if you are working with your own data):
+
+![*A Directory of Exported Network Canvas CSVs*](nc_directory_list.png){width=90%}
+
+
+Once you have your data, the first thing you will want to do in R is to create an object that stores the path to this folder as a character value.
+
+```{r directory_path}
+# Store path to folder with Network Canvas data
+### Note that this path will almost certainly be different on your own computer
+path_to_data <- "~/Desktop/netwrite_debug/nc_site/networkCanvasExport"
+```
+
+If you are going to use your Network Canvas protocol file, as we recommended earlier, you will also want to store the path to the protocol file in another object.
+
+```{r protocol_path}
+# Store path to Network Canvas protocol file
+### Note that this path will almost certainly be different on your own computer
+path_to_protocol <- "~/Desktop/netwrite_debug/nc_site/IJE_RADAR_Protocol.netcanvas"
+```
+
+
+## Reading in Data Using `ideanet` 
+
+Once we have these paths defined, we turn to the [`ideanet`](https://cran.r-project.org/web/packages/ideanet/index.html) package to load our data into R. The `ideanet` package offers a function specifically for reading data collected using Network Canvas, entitled `nc_read`. `nc_read` takes one main argument, `path`, a character value indicating the folder containing the Network Canvas CSV files we want to process. If you also have the Network Canvas protocol file used to collect your data, you can specify its location to `nc_read` using the `protocol` argument. While optional, this argument allows `nc_read` to access information contained in your protocol file that ensures better coding of categorical variables in your data. It is generally best practice to use your protocol file with `nc_read` if its is available to you.
+
+Note that we have already specified the locations of our data (`path_to_data`) and our protocol file (`path_to_protocol`), making it easy to proceed with `nc_read`:
+
+```{r, nc_read1, warning=FALSE, message = FALSE}
+# Load `ideanet`
+library(ideanet)
+
+# Set up `nc_read`
+nc_data <- nc_read(path = path_to_data,
+                   protocol = path_to_protocol)
+```
+
+Our data are now loaded into R and stored in the `nc_data` object. `nc_data` is a list object containing three items frequently used to store egocentric network data. 
+
+### Ego List
+
+The first of these items is a data frame entitled `egos`. This data frame is an *ego list* containing data pertaining to each participant, or ego, who completed our Network Canvas protocol. Each row in the ego list corresponds to a specific ego, who is given a unique identification number. These identification numbers are separate from the unique case and session ID numbers given by the Network Canvas software; however, they perfectly correspond to one another and can be used interchangeably depending on your preference. 
+
+```{r head_egos}
+head(nc_data$egos)
+```
+
+### Alter List
+
+The second item in `nc_data`, `alters`, contains one or more *alter lists* detailing data pertaining to relationships between participants and the entities in their networks, whom we refer to as "alters." Each row in an alter list corresponds to an individual alter in an ego's network:
+
+```{r head_alters}
+head(nc_data$alters)
+```
+
+The first column in the alter list indicates the ego with whom a given alter is associated, the values for which match the unique ID numbers contained in `egos`. The second column indicates the given alter, and alters are also given a unique ID number within each ego network. 
+
+The third column indicates the "type" of node associated with each alter as defined in the Network Canvas protocol. If the data collected by a protocol features multiple node types for alters, `nc_read` will make `alters` a list of data frames. Each data frame in this list is an alter list for a specific node type and will be given the name of their respective node type.
+
+Subsequent columns contain additional data pertaining to each alter or an ego's relationship to that alter. Once more, ID numbers created within Network Canvas itself are also available to users. 
+
+### Alter Edgelists
+
+The final item  created by `nc_read`, `alter_edgelists`, contains one or more *alter-alter edgelists* in which each row represent a tie connecting two alters within an ego's network to one another. Not all Network Canvas protocol collect data on ties between alters in an ego's network. Accordingly, `alter_edgelists` will only appear in `nc_data` if the user's data actually captures alter-alter-ties:
+
+```{r alter_edgelists_names}
+# Observe names of data frames stored in `alter_edgelists`
+names(nc_data$alter_edgelists)
+```
+
+In our example here, we see that `alter_edgelists` is a list containing three data frames named `Close`, `DrugTie`, and `SexTie`. This is because the Network Canvas protocol producing our data recorded three different "types" of alter-alter ties. `nc_read` creates a separate alter-alter edgelist for each type of tie, making it easier for users to extract only alter-alter ties they need for a specific purpose. Were our example protocol to have collected multiple node types for alters, the `alters` item in `nc_data` would have a similar organization.
+
+Now that we know the structure of `alter_edgelists`, let's take a look at what's inside each data frame:
+
+``` {r close_head}
+# Alter edgelist for "Close" ties
+head(nc_data$alter_edgelists$Close)
+```
+
+``` {r drug_head}
+# Alter edgelist for "Drug" ties
+head(nc_data$alter_edgelists$DrugTie)
+```
+
+``` {r sex_head}
+# Alter edgelist for "Sex" ties
+head(nc_data$alter_edgelists$Sex)
+```
+
+The first column in each of these data frames represents the ego whose network a given tie appears in, values for which will match the `ego_id` columns in our ego list and alter list. The next column, `edge_id` is a within-network ID number for a specific tie. The next two columns contain the ID numbers of alters connected by a given tie, values for which will match `alter_id` in the alter list. The subsequent column, `edge_type`, indicates the type of tie connecting two alters in a network. All other columns in `alter_edgelists` contain attributes of the relationship between two alters in an ego's network. These include columns containing the original ego and alter IDs generated within the Network Canvas software.
+
+
+## Analyzing Data Using `egor`
+
+Using the `nc_read` package in `ideanet`, we have successfully imported our Network Canvas data into R. This leaves us free to analyze and visualize our data however we wish. 
+
+There are many tools and methods available for analyzing egocentric network data in R, including other tools contained within the `ideanet` package. However, we devote the remainder of this tutorial to analyzing our data using the `egor` package, which our team has the most experience using with Network Canvas data. Additionally, data in `nc_read` are formatted to be easily compatible with `egor`. Our examples here are adapted from a [vignette](https://cran.r-project.org/web/packages/egor/vignettes/using_egor.html) in the `egor` package itself. 
+
+To get started with these examples, you'll need to install and/or load the `egor`, `sna`, and `ggplot2` packages to your R session:
+
+```{r egor_load, message = FALSE, warning = FALSE}
+# Load required packages
+library(egor)
+library(sna)
+library(ggplot2)
+```
+
+Next, we'll need to split the alter list stored in `nc_data` into separate data frames for each unique type of ego-alter tie. Just like the alter-alter ties that appear in `alter_edgelists`, ties between egos and alters can also be of different types. These are not the "node types" that appear in `alters`'s `node_type` column, however. For ego-alter ties, we typically record "tie types" as a set of `TRUE`/`FALSE` variables indicating the presence of different types of relationships within the same ego-alter pair. When `egor` reads in egocentric network data, it assumes that all ties between egos and alters are of the same type. Splitting our alter list into separate data frames ensures that `egor` will produce accurate measurements and visualizations for each type of ego-alter tie.
+
+```{r filter_alters}
+# Create alter list for only "Close" ties
+close_alters <- nc_data$alters %>% filter(Close == TRUE)
+
+# Create alter list for only "Drugs" ties
+drug_alters <- nc_data$alters %>% filter(Drugs == TRUE)
+
+# Create alter list for only "Sex" ties
+sex_alters <- nc_data$alters %>% filter(Sex == TRUE)
+```
+
+Depending on how different types of alter-alter ties were recorded in a Network Canvas protocol, you may need to do something similar to the above for `alter_edgelists` in `nc_data`. However, the alter-alter edgelists in our example `nc_data` match the types of ties stored in each of the data frames above, so we can simply extract them from `nc_data` to proceed.
+
+```{r filter_aa}
+# Create alter-alter edgelist for "Close" ties
+close_aa <- nc_data$alter_edgelists$Close
+
+# Create alter-alter edgelist for "Drugs" ties
+drug_aa <- nc_data$alter_edgelists$DrugTie
+
+# Create alter-alter edgelist for "Sex" ties
+sex_aa <- nc_data$alter_edgelists$SexTie
+```
+
+### Creating an `egor` object
+
+Once we've split our alter list and alter-alter edgelist by tie type, we can now begin to create the `egor`-class objects that `egor` uses for analysis. Although we've created data frames for 3 different types of ties, we’ll be focusing on the full set of alters in each ego's network and only the "Close" ties between alters in each network. This is because the `egor` function requires that all nodes in the alter-alter edgelist must appear in the alter list, and including the full alter list is the best way to ensure this is the case:
+
+```{r create_egor2}
+# Note that the `egor` function will also work if we specify the ID values
+# in our data generated by Network Canvas
+egorNetworkCanvas <- egor(
+           # Note we are using the alter list specifically for "Close" ties
+           alters = nc_data$alters,
+           # Our ego list is unchanged, so we draw on it as it is stored in
+           # `nc_data`
+           egos = nc_data$egos,
+           # We use `close_aa` as our alter-alter edgelist, which is the same
+           # as `nc_data$alter_edgelists`
+           aaties = close_aa,
+           # 
+            ID.vars = list(
+             ego = "networkCanvasEgoUUID",
+             alter = "networkCanvasUUID",
+             source = "networkCanvasSourceUUID",
+             target = "networkCanvasTargetUUID"))
+```
+
+### Data Visualization
+
+With our `egor` object in hand, let's start with a simple visualization of a single ego network. To do this we’ll first convert this network to a `network` object and use the `gplot` function from the `sna` package. This visualization shows the new node labels and colors each node by the contact frequency with the participant. We also layout the figure with the final coordinates from the sociogram stage.
+
+```{r}
+oneEgoNet <- as_network(egorNetworkCanvas)[[1]]
+
+
+
+oneEgoNet%v%"vertex.names" <- oneEgoNet%v%"name"
+
+colorScheme <- c( "#CC6677", "#117733", "#AA4499",
+                  "#6699CC")
+
+# A little recoding to get a color for each frequency
+nodeColors <- ifelse(oneEgoNet%v%"ContactFreq"=="Daily",colorScheme[1],
+                    ifelse(oneEgoNet%v%"ContactFreq"=="Weekly",colorScheme[2],
+                           ifelse(oneEgoNet%v%"ContactFreq"=="Less than \n weekly",colorScheme[3],
+                                  colorScheme[4])))
+
+gplot(oneEgoNet,
+       usearrows = FALSE,
+       label = oneEgoNet%v%"name",
+       displaylabels = TRUE,
+       vertex.col=nodeColors,
+       edge.col="gray",
+       coord = matrix(c(as.numeric(oneEgoNet%v%"Cords_x"),
+                        -as.numeric(oneEgoNet%v%"Cords_y")),
+                        nrow=length(unique(oneEgoNet%v%"name")),
+                        ncol=2))
+```
+
+As you can see, this only shows a single ego's network. However, the `egor` package has several functions that facilitate comparison of networks across multiple egos, though you may have to modify your data somewhat to ensure compatibility. For example, here is how we would make a visualization showing each networks with nodes' locations depending on their frequency of contact with a participant and their status as a drug partner (i.e., `TRUE`/`FALSE`):
+
+```{r}
+# Make a visualization displaying both frequency of communication and drug use status
+
+# A quick note: `egor`'s visualization tools don't appear to like working with `logical`-class
+# vectors such as the `Drugs` variable in our alter list. To allow for smooth visualization,
+# we recode `Drugs` as a new character variable with the labels we want to use in our visualization:
+egorNetworkCanvas$alter$Drugs_label <- ifelse(is.na(egorNetworkCanvas$alter$Drugs), "Not Drug Partner", "Drug Partner")
+
+# We'll also recode our `ContactFreq` variable to show better labels 
+egorNetworkCanvas$alter$ContactFreq_label <- ifelse(egorNetworkCanvas$alter$ContactFreq == "Less_than_weekly", 
+                                                    "Less than\nweekly", 
+                                                    egorNetworkCanvas$alter$ContactFreq)
+
+# And we'll want to create a label column for node IDs as well
+egorNetworkCanvas$alter$alter_label <- as.character(egorNetworkCanvas$alter$.altID)
+
+plot(egorNetworkCanvas, 
+     venn_var = "Drugs_label",
+     pie_var = "ContactFreq_label",
+     vertex_label_var = "name",
+     type = "egogram")
+```
+
+### Data Analysis
+
+The `egor` package has numerous functions that help with basic data analysis of ego networks. For example, the `summary` function provides an overview of all ego networks in the `egor` object while the `ego_density` functions provides the density for each participant’s network.
+
+```{r egor_summary}
+summary(egorNetworkCanvas)
+```
+```{r}
+ego_density(egorNetworkCanvas)
+```
+
+We can also use a traditional package, such as `sna`, to look at these networks by applying functions (i.e., `lapply`) to each of these networks and aggregating the results. For example, here we first make a simple histogram of alter degrees across all ego networks.
+
+```{r egor_hist}
+networkNetworkCanvas <- as_network(egorNetworkCanvas)
+
+histData <- networkNetworkCanvas %>%
+  lapply(degree,cmode="indegree") %>%
+  unlist(recursive = FALSE) %>%
+  as.data.frame()
+
+histData$degree <- as.numeric(histData$".")
+
+ggplot(histData, aes(x=degree)) +
+    geom_histogram(color="black", fill="white",bins=5) +
+    theme_classic()
+```
+
+Finally, we often want to examine how an ego attribute may be associated with ego network characteristics. In this example we look at the association between a participant's reported marijuana use and the density of their ego network.
+
+```{r, ego_plot}
+ego_density(egorNetworkCanvas) %>%
+  full_join(egorNetworkCanvas$ego,by=".egoID") %>%
+  ggplot(aes(x = MarijuanaUsed, y = density)) +
+    geom_point(size=5) +
+    geom_text(label=egorNetworkCanvas$ego$networkCanvasCaseID, aes(vjust=c(-1.5),
+                                                                   hjust=c(-.5))) +
+    ylim(0,1.05) + theme_classic()
+```
