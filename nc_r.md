@@ -30,7 +30,7 @@ Should you require more resources, or if you are just generally curious, a compl
 
 Assuming you have either downloaded our example data or successfully exported your own data, you should now have a folder of Network Canvas CSV files somewhere on your computer. The contents of this folder should look something like the screenshot below (note that the start of each file name will likely be different if you are working with your own data):
 
-![*A directory of exported Network Canvas CSVs*](nc_directory_list.png)
+![*A directory of exported Network Canvas CSVs*](./figure/nc_directory_list.png)
 
 
 Once you have your data, the first thing you will want to do in R is to create an object that stores the path to this folder as a character value.
